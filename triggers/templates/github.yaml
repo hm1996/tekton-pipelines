@@ -1,0 +1,37 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: github-trigger-template
+  namespace: tekton-system
+spec:
+  params:
+    - name: GITHUB_REPO_URL
+    - name: SOURCE_REVISION
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: github-triggered-pipeline-
+      spec:
+        pipelineRef:
+          name: labelstudio-pipeline
+        podTemplate:
+          securityContext:
+            fsGroup: 65532
+        workspaces:
+          - name: shared-repository
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi
+          - name: git-credentials
+            secret:
+              secretName: git-credentials
+        params:
+          - name: GITHUB_REPO_URL
+            value:  $(tt.params.GITHUB_REPO_URL)
+          - name: SOURCE_REVISION
+            value: $(tt.params.SOURCE_REVISION)
