@@ -6,6 +6,6 @@ metadata:
 spec:
   params:
     - name: SOURCE_REVISION
-      value: $(body.pull_request.head.sha)
+      value: $(body.after)
     - name: GITHUB_REPO_URL
       value: $(body.repository.clone_url)
